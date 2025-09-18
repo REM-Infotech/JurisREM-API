@@ -96,7 +96,7 @@ def perfil():
         usuario_id = get_jwt_identity()
         
         # Busca usuário no banco de dados
-        usuario = Usuario.query.get(usuario_id)
+        usuario = db.session.get(Usuario, usuario_id)
         
         if not usuario:
             return jsonify({'erro': 'Usuário não encontrado'}), 404
@@ -124,7 +124,7 @@ def atualizar_perfil():
         usuario_id = get_jwt_identity()
         
         # Busca usuário no banco de dados
-        usuario = Usuario.query.get(usuario_id)
+        usuario = db.session.get(Usuario, usuario_id)
         
         if not usuario:
             return jsonify({'erro': 'Usuário não encontrado'}), 404

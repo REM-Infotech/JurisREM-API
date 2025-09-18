@@ -68,4 +68,4 @@ def test_perfil_sem_autenticacao(client):
     """Teste acesso ao perfil sem autenticação."""
     response = client.get('/api/auth/perfil')
     
-    assert response.status_code == 422  # JWT missing
+    assert response.status_code == 401  # JWT missing returns 401
