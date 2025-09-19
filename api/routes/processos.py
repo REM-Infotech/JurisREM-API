@@ -1,10 +1,12 @@
 """Defina rotas para gerenciamento de processos jurídicos."""
 
 import re
+import traceback
 from datetime import datetime
 
-from flask import Blueprint, jsonify, request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask import Blueprint, Response, jsonify, request
+from flask import current_app as app
+from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import or_
 
 from api import db
@@ -17,7 +19,7 @@ from api.models.processo import Andamento, Processo
 processos_bp = Blueprint("processos", __name__)
 
 
-@processos_bp.route("/", methods=["GET", "POST", "OPTIONS"])
+@processos_bp.get("/listagem")
 def listar_processos():
     """Liste todos os processos com opção de filtros e paginação."""
     try:
@@ -32,35 +34,32 @@ def listar_processos():
         prioridade = request.args.get("prioridade", "")
 
         # Monta query base com joins para otimizar consultas
-        query = Processo.query.join(Cliente).join(Advogado)
+        query = Processo.query
 
-        # Filtro de busca por número, título ou nome do cliente
-        if search:
-            search_filter = or_(
-                Processo.numero_processo.ilike(f"%{search}%"),
-                Processo.titulo.ilike(f"%{search}%"),
-                Cliente.nome.ilike(f"%{search}%"),
-            )
-            query = query.filter(search_filter)
+        # # Filtro de busca por número, título ou nome do cliente
+        # if search:
+        #     search_filter = or_(
+        #         Processo.numero_processo.ilike(f"%{search}%"),
+        #         Processo.titulo.ilike(f"%{search}%"),
+        #         Cliente.nome.ilike(f"%{search}%"),
+        #     )
+        #     query = query.filter(search_filter)
 
-        # Filtros específicos
-        if status:
-            query = query.filter(Processo.status == status)
+        # # Filtros específicos
+        # if status:
+        #     query = query.filter(Processo.status == status)
 
-        if area_juridica:
-            query = query.filter(Processo.area_juridica == area_juridica)
+        # if area_juridica:
+        #     query = query.filter(Processo.area_juridica == area_juridica)
 
-        if advogado_id:
-            query = query.filter(Processo.advogado_id == advogado_id)
+        # if advogado_id:
+        #     query = query.filter(Processo.advogado_id == advogado_id)
 
-        if cliente_id:
-            query = query.filter(Processo.cliente_id == cliente_id)
+        # if cliente_id:
+        #     query = query.filter(Processo.cliente_id == cliente_id)
 
-        if prioridade:
-            query = query.filter(Processo.prioridade == prioridade)
-
-        # Ordena por data de criação (mais recentes primeiro)
-        query = query.order_by(Processo.created_at.desc())
+        # if prioridade:
+        #     query = query.filter(Processo.prioridade == prioridade)
 
         # Executa paginação
         processos_paginados = query.paginate(
@@ -73,6 +72,7 @@ def listar_processos():
             processos_data.append(
                 {
                     "id": processo.id,
+                    "descricao": processo.descricao if processo.descricao else "",
                     "numero_processo": processo.numero_processo,
                     "numero_formatado": processo.numero_formatado,
                     "numero_interno": processo.numero_interno,
@@ -92,12 +92,16 @@ def listar_processos():
                         "id": processo.cliente.id,
                         "nome": processo.cliente.nome,
                         "cpf_cnpj": processo.cliente.cpf_cnpj,
-                    },
+                    }
+                    if processo.cliente
+                    else {},
                     "advogado": {
                         "id": processo.advogado_responsavel.id,
                         "nome": processo.advogado_responsavel.nome,
                         "oab_completa": processo.advogado_responsavel.oab_completa,
-                    },
+                    }
+                    if processo.advogado_responsavel
+                    else {},
                     "total_andamentos": len(processo.andamentos),
                     "created_at": processo.created_at.isoformat(),
                 }
@@ -117,7 +121,10 @@ def listar_processos():
             }
         ), 200
 
-    except Exception:
+    except Exception as e:
+        exc = "\n".join(traceback.format_exception(e))
+        app.logger.error(f"Erro ao listar processos: {exc}")
+
         return jsonify({"erro": "Erro interno do servidor"}), 500
 
 
@@ -151,26 +158,26 @@ def criar_processo():
         if Processo.query.filter_by(numero_processo=data["numero_processo"]).first():
             return jsonify({"erro": "Número do processo já cadastrado"}), 409
 
-        # Verifica se cliente existe
-        cliente = Cliente.query.get(data["cliente_id"])
-        if not cliente:
-            return jsonify({"erro": "Cliente não encontrado"}), 404
+        # # Verifica se cliente existe
+        # cliente = Cliente.query.get(data["cliente_id"])
+        # if not cliente:
+        #     return jsonify({"erro": "Cliente não encontrado"}), 404
 
-        # Verifica se advogado existe
-        advogado = Advogado.query.get(data["advogado_id"])
-        if not advogado:
-            return jsonify({"erro": "Advogado não encontrado"}), 404
+        # # Verifica se advogado existe
+        # advogado = Advogado.query.get(data["advogado_id"])
+        # if not advogado:
+        #     return jsonify({"erro": "Advogado não encontrado"}), 404
 
         # Cria novo processo
         processo = Processo(
             numero_processo=data["numero_processo"],
             numero_interno=data.get("numero_interno"),
-            titulo=data["titulo"],
+            titulo=data.get("titulo"),
             descricao=data.get("descricao"),
-            area_juridica=data["area_juridica"],
+            area_juridica=data.get("area_juridica"),
             tipo_acao=data.get("tipo_acao"),
             status=data.get("status", "em_andamento"),
-            data_distribuicao=datetime.fromisoformat(data["data_distribuicao"])
+            data_distribuicao=datetime.fromisoformat(data.get("data_distribuicao"))
             if data.get("data_distribuicao")
             else None,
             tribunal=data.get("tribunal"),
@@ -182,8 +189,8 @@ def criar_processo():
             prioridade=data.get("prioridade", "normal"),
             observacoes=data.get("observacoes"),
             observacoes_internas=data.get("observacoes_internas"),
-            cliente_id=data["cliente_id"],
-            advogado_id=data["advogado_id"],
+            cliente_id=data.get("cliente"),
+            advogado_id=data.get("advogado"),
         )
 
         # Salva no banco de dados
@@ -506,3 +513,11 @@ def criar_andamento(processo_id):
 
     except Exception:
         return jsonify({"erro": "Erro interno do servidor"}), 500
+
+
+@processos_bp.after_request
+def add_headers(response: Response) -> Response:
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,PUT,POST,DELETE,OPTIONS"
+    return response
