@@ -1,14 +1,14 @@
 """Defina o modelo Advogado para gerenciamento da equipe jurídica."""
 
 from app import db
-from app.models import BaseModel
+from app.models._base import BaseModel
 
 
 class Advogado(BaseModel):
     """Represente um advogado responsável por processos jurídicos."""
-    
-    __tablename__ = 'advogados'
-    
+
+    __tablename__ = "advogados"
+
     # Informações pessoais e profissionais
     nome = db.Column(db.String(200), nullable=False, index=True)
     cpf = db.Column(db.String(14), unique=True, nullable=False)
@@ -16,15 +16,17 @@ class Advogado(BaseModel):
     oab_estado = db.Column(db.String(2), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     telefone = db.Column(db.String(20), nullable=True)
-    
+
     # Especialidades jurídicas
-    especialidades = db.Column(db.Text, nullable=True)  # JSON string com lista de especialidades
-    
+    especialidades = db.Column(
+        db.Text, nullable=True
+    )  # JSON string com lista de especialidades
+
     # Status profissional
     ativo = db.Column(db.Boolean, default=True, nullable=False)
     data_admissao = db.Column(db.Date, nullable=True)
     data_demissao = db.Column(db.Date, nullable=True)
-    
+
     # Endereço profissional
     endereco_rua = db.Column(db.String(200), nullable=True)
     endereco_numero = db.Column(db.String(10), nullable=True)
@@ -33,25 +35,25 @@ class Advogado(BaseModel):
     endereco_cidade = db.Column(db.String(100), nullable=True)
     endereco_estado = db.Column(db.String(2), nullable=True)
     endereco_cep = db.Column(db.String(10), nullable=True)
-    
+
     # Informações complementares
     biografia = db.Column(db.Text, nullable=True)
     observacoes = db.Column(db.Text, nullable=True)
-    
+
     # Relacionamento com processos (um advogado pode ter vários processos)
-    processos = db.relationship('Processo', backref='advogado_responsavel', lazy=True)
-    
+    processos = db.relationship("Processo", backref="advogado_responsavel", lazy=True)
+
     @property
     def oab_completa(self):
         """Retorne o número da OAB formatado com estado."""
         return f"OAB/{self.oab_estado} {self.oab_numero}"
-    
+
     @property
     def endereco_completo(self):
         """Retorne o endereço completo formatado do advogado."""
         # Monta endereço completo a partir dos campos individuais
         endereco_parts = []
-        
+
         if self.endereco_rua:
             endereco_parts.append(self.endereco_rua)
         if self.endereco_numero:
@@ -66,22 +68,26 @@ class Advogado(BaseModel):
             endereco_parts.append(f"/{self.endereco_estado}")
         if self.endereco_cep:
             endereco_parts.append(f" - CEP: {self.endereco_cep}")
-            
-        return ''.join(endereco_parts) if endereco_parts else None
-    
+
+        return "".join(endereco_parts) if endereco_parts else None
+
     def get_especialidades_list(self):
         """Retorne lista de especialidades do advogado."""
         import json
+
         try:
             return json.loads(self.especialidades) if self.especialidades else []
         except (json.JSONDecodeError, TypeError):
             return []
-    
+
     def set_especialidades_list(self, especialidades_list):
         """Defina especialidades do advogado a partir de uma lista."""
         import json
-        self.especialidades = json.dumps(especialidades_list) if especialidades_list else None
-    
+
+        self.especialidades = (
+            json.dumps(especialidades_list) if especialidades_list else None
+        )
+
     def __repr__(self):
         """Retorne representação string do objeto Advogado."""
-        return f'<Advogado {self.nome} - {self.oab_completa}>'
+        return f"<Advogado {self.nome} - {self.oab_completa}>"
