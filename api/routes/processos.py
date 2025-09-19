@@ -4,19 +4,18 @@ from datetime import datetime
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from sqlalchemy import and_, or_
+from sqlalchemy import or_
 
-from app import db
-from app.models.advogado import Advogado
-from app.models.cliente import Cliente
-from app.models.processo import Andamento, Processo
-from app.models.usuario import Usuario
+from api import db
+from api.models.advogado import Advogado
+from api.models.cliente import Cliente
+from api.models.processo import Andamento, Processo
 
 # Cria blueprint para rotas de processos
 processos_bp = Blueprint("processos", __name__)
 
 
-@processos_bp.route("/", methods=["GET"])
+@processos_bp.route("/", methods=["GET", "POST", "OPTIONS"])
 @jwt_required()
 def listar_processos():
     """Liste todos os processos com opção de filtros e paginação."""

@@ -1,26 +1,27 @@
 """Configure ambiente de testes para a aplicação JurisREM API."""
 
-import pytest
-from app import create_app, db
-from app.models.usuario import Usuario
-from app.models.cliente import Cliente
-from app.models.advogado import Advogado
-from app.models.processo import Processo
+import pytest  # type: ignore # noqa: F401
+
+from api import create_app, db
+from api.models.advogado import Advogado
+from api.models.cliente import Cliente
+from api.models.processo import Processo  # noqa: F401
+from api.models.usuario import Usuario
 
 
 @pytest.fixture
 def app():
     """Crie instância da aplicação configurada para testes."""
     # Cria aplicação em modo de teste
-    app = create_app('testing')
-    
+    app = create_app("testing")
+
     # Configura contexto da aplicação
     with app.app_context():
         # Cria todas as tabelas
         db.create_all()
-        
+
         yield app
-        
+
         # Limpa dados após os testes
         db.session.remove()
         db.drop_all()
@@ -43,34 +44,33 @@ def auth_headers(client):
     """Crie headers de autenticação com usuário de teste."""
     # Cria usuário de teste
     usuario_teste = Usuario(
-        nome='Usuário Teste',
-        email='teste@exemplo.com',
-        tipo_usuario='admin',
-        ativo=True
+        nome="Usuário Teste",
+        email="teste@exemplo.com",
+        tipo_usuario="admin",
+        ativo=True,
     )
-    usuario_teste.set_password('senha123')
+    usuario_teste.set_password("senha123")
     usuario_teste.save()
-    
+
     # Faz login e obtém token
-    response = client.post('/api/auth/login', json={
-        'email': 'teste@exemplo.com',
-        'senha': 'senha123'
-    })
-    
-    token = response.get_json()['token']
-    
-    return {'Authorization': f'Bearer {token}'}
+    response = client.post(
+        "/api/auth/login", json={"email": "teste@exemplo.com", "senha": "senha123"}
+    )
+
+    token = response.get_json()["token"]
+
+    return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
 def cliente_teste():
     """Crie cliente de teste para usar nos testes."""
     cliente = Cliente(
-        nome='Cliente Teste',
-        cpf_cnpj='123.456.789-00',
-        tipo_pessoa='fisica',
-        email='cliente@teste.com',
-        telefone='(11) 99999-9999'
+        nome="Cliente Teste",
+        cpf_cnpj="123.456.789-00",
+        tipo_pessoa="fisica",
+        email="cliente@teste.com",
+        telefone="(11) 99999-9999",
     )
     cliente.save()
     return cliente
@@ -80,11 +80,11 @@ def cliente_teste():
 def advogado_teste():
     """Crie advogado de teste para usar nos testes."""
     advogado = Advogado(
-        nome='Dr. Advogado Teste',
-        cpf='987.654.321-00',
-        oab_numero='123456',
-        oab_estado='SP',
-        email='advogado@teste.com'
+        nome="Dr. Advogado Teste",
+        cpf="987.654.321-00",
+        oab_numero="123456",
+        oab_estado="SP",
+        email="advogado@teste.com",
     )
     advogado.save()
     return advogado

@@ -1,7 +1,7 @@
 """Defina o modelo Cliente para gerenciamento de clientes jurídicos."""
 
-from app import db
-from app.models._base import BaseModel
+from api import db
+from api.models._base import BaseModel
 
 
 class Cliente(BaseModel):

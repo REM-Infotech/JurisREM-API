@@ -15,6 +15,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 cors = CORS()
 jwt = JWTManager()
+api = Flask(__name__)
 
 
 def create_app(config_name="default"):
@@ -27,43 +28,43 @@ def create_app(config_name="default"):
         Flask: Instância configurada da aplicação Flask
     """
     # Cria instância da aplicação Flask
-    app = Flask(__name__)
 
     # Carrega configuração baseada no ambiente especificado
-    app.config.from_object(config[config_name])
+    global api
+    api.config.from_object(config[config_name])
 
     # Inicializa extensões com a aplicação
-    db.init_app(app)
-    migrate.init_app(app, db)
-    cors.init_app(app, origins=app.config["CORS_ORIGINS"])
-    jwt.init_app(app)
-    init_database(app=app)
+    db.init_app(api)
+    migrate.init_app(api, db)
+    cors.init_app(api, origins=api.config["CORS_ORIGINS"])
+    jwt.init_app(api)
+    init_database(app=api)
     # Registra blueprints das rotas da aplicação
-    from app.routes.advogados import advogados_bp
-    from app.routes.auth import auth_bp
-    from app.routes.clientes import clientes_bp
-    from app.routes.dashboard import dashboard_bp
-    from app.routes.main import main_bp
-    from app.routes.processos import processos_bp
+    from api.routes.advogados import advogados_bp
+    from api.routes.auth import auth_bp
+    from api.routes.clientes import clientes_bp
+    from api.routes.dashboard import dashboard_bp
+    from api.routes.main import main_bp
+    from api.routes.processos import processos_bp
 
-    app.register_blueprint(main_bp)
-    app.register_blueprint(auth_bp, url_prefix="/api/auth")
-    app.register_blueprint(processos_bp, url_prefix="/api/processos")
-    app.register_blueprint(clientes_bp, url_prefix="/api/clientes")
-    app.register_blueprint(advogados_bp, url_prefix="/api/advogados")
-    app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
+    api.register_blueprint(main_bp)
+    api.register_blueprint(auth_bp, url_prefix="/api/auth")
+    api.register_blueprint(processos_bp, url_prefix="/api/processos")
+    api.register_blueprint(clientes_bp, url_prefix="/api/clientes")
+    api.register_blueprint(advogados_bp, url_prefix="/api/advogados")
+    api.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
 
     # Registra manipuladores de erro personalizados
-    from app.routes.errors import register_error_handlers
 
-    register_error_handlers(app)
+    with api.app_context():
+        import api.routes
 
-    return app
+        return api
 
 
 def init_database(app: Flask) -> None:
     with app.app_context():
-        from app.models.usuario import Usuario
+        from api.models.usuario import Usuario
 
         db.create_all()
 

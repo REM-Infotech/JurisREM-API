@@ -4,8 +4,8 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from sqlalchemy import or_
 
-from app import db
-from app.models.advogado import Advogado
+from api import db
+from api.models.advogado import Advogado
 
 # Cria blueprint para rotas de advogados
 advogados_bp = Blueprint("advogados", __name__)
@@ -27,7 +27,7 @@ def listar_advogados():
 
         # Filtro por status ativo
         if ativo_only:
-            query = query.filter(Advogado.ativo == True)
+            query = query.filter(Advogado.ativo == True)  # noqa: E712
 
         # Filtro de busca por nome, OAB ou email
         if search:

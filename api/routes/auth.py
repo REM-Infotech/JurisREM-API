@@ -3,8 +3,8 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from app import db
-from app.models.usuario import Usuario
+from api import db
+from api.models.usuario import Usuario
 
 # Cria blueprint para rotas de autenticação
 auth_bp = Blueprint("auth", __name__)

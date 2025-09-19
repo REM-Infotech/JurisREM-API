@@ -5,7 +5,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 
-from app.services import DashboardService, RelatorioService
+from api.services import DashboardService, RelatorioService
 
 # Cria blueprint para rotas de dashboard
 dashboard_bp = Blueprint("dashboard", __name__)

@@ -4,8 +4,8 @@ from datetime import datetime
 
 from sqlalchemy import Numeric
 
-from app import db
-from app.models._base import BaseModel
+from api import db
+from api.models._base import BaseModel
 
 
 class Processo(BaseModel):
@@ -93,7 +93,7 @@ class Processo(BaseModel):
 
     def get_ultimo_andamento(self):
         """Retorne o andamento mais recente do processo."""
-        from app.models.processo import (
+        from api.models.processo import (
             Andamento,  # Import local para evitar circular import
         )
 

@@ -2,6 +2,6 @@
 
 from datetime import datetime
 
-from app.models import advogado, cliente, processo, usuario
+from api.models import advogado, cliente, processo, usuario
 
 __all__ = ["datetime", "cliente", "advogado", "processo", "usuario"]

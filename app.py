@@ -2,11 +2,11 @@
 
 import os
 
-from app import create_app, db
-from app.models.advogado import Advogado
-from app.models.cliente import Cliente
-from app.models.processo import Andamento, Processo
-from app.models.usuario import Usuario
+from api import create_app, db
+from api.models.advogado import Advogado
+from api.models.cliente import Cliente
+from api.models.processo import Andamento, Processo
+from api.models.usuario import Usuario
 
 # Cria instância da aplicação baseada na configuração do ambiente
 config_name = os.environ.get("FLASK_ENV", "default")

@@ -4,14 +4,14 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from sqlalchemy import or_
 
-from app import db
-from app.models.cliente import Cliente
+from api import db
+from api.models.cliente import Cliente
 
 # Cria blueprint para rotas de clientes
 clientes_bp = Blueprint("clientes", __name__)
 
 
-@clientes_bp.route("/", methods=["GET"])
+@clientes_bp.route("/", methods=["GET", "POST", "OPTIONS"])
 @jwt_required()
 def listar_clientes():
     """Liste todos os clientes com opção de busca e paginação."""

@@ -1,7 +1,7 @@
 """Defina o modelo Advogado para gerenciamento da equipe jurídica."""
 
-from app import db
-from app.models._base import BaseModel
+from api import db
+from api.models._base import BaseModel
 
 
 class Advogado(BaseModel):
