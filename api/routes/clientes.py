@@ -12,7 +12,6 @@ clientes_bp = Blueprint("clientes", __name__)
 
 
 @clientes_bp.route("/", methods=["GET", "POST", "OPTIONS"])
-@jwt_required()
 def listar_clientes():
     """Liste todos os clientes com opção de busca e paginação."""
     try:
@@ -81,7 +80,6 @@ def listar_clientes():
 
 
 @clientes_bp.route("/", methods=["POST"])
-@jwt_required()
 def criar_cliente():
     """Crie um novo cliente no sistema."""
     try:
@@ -138,7 +136,6 @@ def criar_cliente():
 
 
 @clientes_bp.route("/<int:cliente_id>", methods=["GET"])
-@jwt_required()
 def obter_cliente(cliente_id):
     """Obtenha detalhes completos de um cliente específico."""
     try:
@@ -180,7 +177,6 @@ def obter_cliente(cliente_id):
 
 
 @clientes_bp.route("/<int:cliente_id>", methods=["PUT"])
-@jwt_required()
 def atualizar_cliente(cliente_id):
     """Atualize informações de um cliente existente."""
     try:
@@ -243,7 +239,6 @@ def atualizar_cliente(cliente_id):
 
 
 @clientes_bp.route("/<int:cliente_id>", methods=["DELETE"])
-@jwt_required()
 def excluir_cliente(cliente_id):
     """Exclua um cliente do sistema (soft delete)."""
     try:

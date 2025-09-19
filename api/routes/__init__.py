@@ -4,6 +4,15 @@ from werkzeug.exceptions import HTTPException
 from api import app
 
 
+@app.after_request
+def after_party(response: Response) -> Response:
+    _resp = response
+
+    _resp.headers["Access-Control-Allow-Origin"] = "*"
+    _resp.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    return _resp
+
+
 @app.errorhandler(400)
 def bad_request(error: HTTPException) -> Response:
     """Trate erros de requisição inválida (400 Bad Request)."""

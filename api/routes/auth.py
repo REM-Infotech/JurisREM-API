@@ -93,7 +93,6 @@ def registro():
 
 
 @auth_bp.route("/perfil", methods=["GET"])
-@jwt_required()
 def perfil():
     """Retorne informações do perfil do usuário autenticado."""
     try:
@@ -123,7 +122,6 @@ def perfil():
 
 
 @auth_bp.route("/perfil", methods=["PUT"])
-@jwt_required()
 def atualizar_perfil():
     """Atualize informações do perfil do usuário autenticado."""
     try:

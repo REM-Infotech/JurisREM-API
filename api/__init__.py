@@ -13,9 +13,9 @@ from config import config
 # Inicializa extensões Flask sem vincular a uma aplicação específica
 db = SQLAlchemy()
 migrate = Migrate()
-cors = CORS()
 jwt = JWTManager()
 app = Flask(__name__)
+cors = CORS()
 
 
 def create_app(config_name="default"):
@@ -36,7 +36,7 @@ def create_app(config_name="default"):
     # Inicializa extensões com a aplicação
     db.init_app(app)
     migrate.init_app(app, db)
-    cors.init_app(app, origins=app.config["CORS_ORIGINS"])
+    cors.init_app(app)
     jwt.init_app(app)
     init_database(app=app)
     # Registra blueprints das rotas da aplicação

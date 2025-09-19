@@ -14,42 +14,40 @@ class Processo(BaseModel):
     __tablename__ = "processos"
 
     # Identificação do processo
-    numero_processo = db.Column(db.String(50), unique=True, nullable=False, index=True)
-    numero_interno = db.Column(db.String(20), nullable=True, index=True)
+    numero_processo = db.Column(db.String(50), unique=True, index=True)
+    numero_interno = db.Column(db.String(20), index=True)
 
     # Informações básicas
-    titulo = db.Column(db.String(200), nullable=False)
-    descricao = db.Column(db.Text, nullable=True)
-    area_juridica = db.Column(
-        db.String(100), nullable=False
-    )  # civil, criminal, trabalhista, etc.
-    tipo_acao = db.Column(db.String(100), nullable=True)
+    titulo = db.Column(db.String(200))
+    descricao = db.Column(db.Text)
+    area_juridica = db.Column(db.String(100))  # civil, criminal, trabalhista, etc.
+    tipo_acao = db.Column(db.String(100))
 
     # Status e datas importantes
-    status = db.Column(db.String(50), default="em_andamento", nullable=False)
-    data_distribuicao = db.Column(db.Date, nullable=True)
-    data_conclusao = db.Column(db.Date, nullable=True)
+    status = db.Column(db.String(50), default="em_andamento")
+    data_distribuicao = db.Column(db.Date)
+    data_conclusao = db.Column(db.Date)
 
     # Informações do tribunal
-    tribunal = db.Column(db.String(200), nullable=True)
-    vara = db.Column(db.String(100), nullable=True)
-    juiz = db.Column(db.String(200), nullable=True)
+    tribunal = db.Column(db.String(200))
+    vara = db.Column(db.String(100))
+    juiz = db.Column(db.String(200))
 
     # Valor da causa e informações financeiras
-    valor_causa = db.Column(Numeric(15, 2), nullable=True)
-    valor_honorarios = db.Column(Numeric(15, 2), nullable=True)
-    forma_pagamento = db.Column(db.String(50), nullable=True)
+    valor_causa = db.Column(Numeric(15, 2))
+    valor_honorarios = db.Column(Numeric(15, 2))
+    forma_pagamento = db.Column(db.String(50))
 
     # Prioridade e observações
     prioridade = db.Column(
-        db.String(20), default="normal", nullable=False
+        db.String(20), default="normal"
     )  # baixa, normal, alta, urgente
-    observacoes = db.Column(db.Text, nullable=True)
-    observacoes_internas = db.Column(db.Text, nullable=True)
+    observacoes = db.Column(db.Text)
+    observacoes_internas = db.Column(db.Text)
 
     # Relacionamentos com outras entidades
-    cliente_id = db.Column(db.Integer, db.ForeignKey("clientes.id"), nullable=False)
-    advogado_id = db.Column(db.Integer, db.ForeignKey("advogados.id"), nullable=False)
+    cliente_id = db.Column(db.Integer, db.ForeignKey("clientes.id"))
+    advogado_id = db.Column(db.Integer, db.ForeignKey("advogados.id"))
 
     # Relacionamento com andamentos do processo
     andamentos = db.relationship(
@@ -110,21 +108,19 @@ class Andamento(BaseModel):
     __tablename__ = "andamentos"
 
     # Informações do andamento
-    data_andamento = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    tipo_andamento = db.Column(db.String(100), nullable=False)
-    descricao = db.Column(db.Text, nullable=False)
+    data_andamento = db.Column(db.DateTime, default=datetime.utcnow)
+    tipo_andamento = db.Column(db.String(100))
+    descricao = db.Column(db.Text)
 
     # Informações complementares
-    observacoes = db.Column(db.Text, nullable=True)
-    documento_anexo = db.Column(
-        db.String(500), nullable=True
-    )  # caminho para arquivo anexo
+    observacoes = db.Column(db.Text)
+    documento_anexo = db.Column(db.String(500))  # caminho para arquivo anexo
 
     # Relacionamento com processo
-    processo_id = db.Column(db.Integer, db.ForeignKey("processos.id"), nullable=False)
+    processo_id = db.Column(db.Integer, db.ForeignKey("processos.id"))
 
     # Usuário responsável pelo andamento
-    usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"))
     usuario = db.relationship("Usuario", backref="andamentos_criados")
 
     def __repr__(self):

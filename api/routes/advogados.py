@@ -12,7 +12,6 @@ advogados_bp = Blueprint("advogados", __name__)
 
 
 @advogados_bp.route("/", methods=["GET"])
-@jwt_required()
 def listar_advogados():
     """Liste todos os advogados com opção de busca e paginação."""
     try:
@@ -83,7 +82,6 @@ def listar_advogados():
 
 
 @advogados_bp.route("/", methods=["POST"])
-@jwt_required()
 def criar_advogado():
     """Crie um novo advogado no sistema."""
     try:
@@ -154,7 +152,6 @@ def criar_advogado():
 
 
 @advogados_bp.route("/<int:advogado_id>", methods=["GET"])
-@jwt_required()
 def obter_advogado(advogado_id):
     """Obtenha detalhes completos de um advogado específico."""
     try:
@@ -204,7 +201,6 @@ def obter_advogado(advogado_id):
 
 
 @advogados_bp.route("/<int:advogado_id>", methods=["PUT"])
-@jwt_required()
 def atualizar_advogado(advogado_id):
     """Atualize informações de um advogado existente."""
     try:
@@ -289,7 +285,6 @@ def atualizar_advogado(advogado_id):
 
 
 @advogados_bp.route("/<int:advogado_id>", methods=["DELETE"])
-@jwt_required()
 def excluir_advogado(advogado_id):
     """Exclua um advogado do sistema (soft delete)."""
     try:

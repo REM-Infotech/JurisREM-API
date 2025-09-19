@@ -1,5 +1,6 @@
 """Defina rotas para gerenciamento de processos jurídicos."""
 
+import re
 from datetime import datetime
 
 from flask import Blueprint, jsonify, request
@@ -7,6 +8,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import or_
 
 from api import db
+from api.interface.processo import ProcessoInterface
 from api.models.advogado import Advogado
 from api.models.cliente import Cliente
 from api.models.processo import Andamento, Processo
@@ -16,7 +18,6 @@ processos_bp = Blueprint("processos", __name__)
 
 
 @processos_bp.route("/", methods=["GET", "POST", "OPTIONS"])
-@jwt_required()
 def listar_processos():
     """Liste todos os processos com opção de filtros e paginação."""
     try:
@@ -120,21 +121,27 @@ def listar_processos():
         return jsonify({"erro": "Erro interno do servidor"}), 500
 
 
-@processos_bp.route("/", methods=["POST"])
-@jwt_required()
+@processos_bp.post("/criar_processo")
 def criar_processo():
     """Crie um novo processo jurídico no sistema."""
     try:
         # Obtém dados do request
-        data = request.get_json()
+        data_json = request.get_json()
+
+        def camel_to_snake(name):
+            name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+            return re.sub("([a-z0-9])([A-Z])", r"\1_\2", name).lower()
+
+        data: ProcessoInterface = {
+            camel_to_snake(key): value for key, value in data_json.items()
+        }
 
         # Validação de campos obrigatórios
         campos_obrigatorios = [
             "numero_processo",
             "titulo",
             "area_juridica",
-            "cliente_id",
-            "advogado_id",
+            "cliente",
         ]
         for campo in campos_obrigatorios:
             if not data.get(campo):
@@ -203,14 +210,13 @@ def criar_processo():
                     "status": processo.status,
                 },
             }
-        ), 201
+        ), 200
 
     except Exception:
         return jsonify({"erro": "Erro interno do servidor"}), 500
 
 
 @processos_bp.route("/<int:processo_id>", methods=["GET"])
-@jwt_required()
 def obter_processo(processo_id):
     """Obtenha detalhes completos de um processo específico."""
     try:
@@ -302,7 +308,6 @@ def obter_processo(processo_id):
 
 
 @processos_bp.route("/<int:processo_id>", methods=["PUT"])
-@jwt_required()
 def atualizar_processo(processo_id):
     """Atualize informações de um processo existente."""
     try:
@@ -395,7 +400,6 @@ def atualizar_processo(processo_id):
 
 
 @processos_bp.route("/<int:processo_id>/andamentos", methods=["GET"])
-@jwt_required()
 def listar_andamentos(processo_id):
     """Liste todos os andamentos de um processo específico."""
     try:
@@ -456,7 +460,6 @@ def listar_andamentos(processo_id):
 
 
 @processos_bp.route("/<int:processo_id>/andamentos", methods=["POST"])
-@jwt_required()
 def criar_andamento(processo_id):
     """Crie um novo andamento para um processo específico."""
     try:

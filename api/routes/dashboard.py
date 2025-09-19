@@ -12,7 +12,6 @@ dashboard_bp = Blueprint("dashboard", __name__)
 
 
 @dashboard_bp.route("/estatisticas", methods=["GET"])
-@jwt_required()
 def obter_estatisticas():
     """Obtenha estatísticas gerais do sistema para dashboard."""
     try:
@@ -26,7 +25,6 @@ def obter_estatisticas():
 
 
 @dashboard_bp.route("/processos-recentes", methods=["GET"])
-@jwt_required()
 def obter_processos_recentes():
     """Obtenha lista dos processos mais recentes."""
     try:
@@ -43,7 +41,6 @@ def obter_processos_recentes():
 
 
 @dashboard_bp.route("/advogados-produtividade", methods=["GET"])
-@jwt_required()
 def obter_produtividade_advogados():
     """Obtenha estatísticas de produtividade dos advogados."""
     try:
@@ -57,7 +54,6 @@ def obter_produtividade_advogados():
 
 
 @dashboard_bp.route("/relatorio-periodo", methods=["POST"])
-@jwt_required()
 def gerar_relatorio_periodo():
     """Gere relatório de processos por período específico."""
     try:
@@ -91,7 +87,6 @@ def gerar_relatorio_periodo():
 
 
 @dashboard_bp.route("/clientes-sem-processos", methods=["GET"])
-@jwt_required()
 def obter_clientes_sem_processos():
     """Obtenha lista de clientes que não possuem processos associados."""
     try:
